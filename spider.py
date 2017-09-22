@@ -1,6 +1,7 @@
 # coding=utf-8
 #pip install bs4
 #pip install requests
+#VSCode git 真好用！
 
 import urllib
 import requests
