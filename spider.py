@@ -2,12 +2,14 @@
 #pip install bs4
 #pip install requests
 #VSCode git 真好用！
+#反爬机制，post和get，form data
 
 import urllib
 import requests
+import json
 from bs4 import BeautifulSoup
 def main():
-    headers={
+    headers = {
         'User-Agent': 'Mozilla/5.0(WindowsNT10.0;Win64;x64) AppleWebKit/537.36(KHTML, like Gecko)Chrome/61.0.3163.79 Safari/537.36',
         'Referer': 'https://www.lagou.com/jobs/list_python?labelWords=&fromSearch=true&suginput=',
         'host':'www.lagou.com',
@@ -16,8 +18,20 @@ def main():
         'X - Anit - Forge - Token': None,
         'X - Requested - With': 'XMLHttpRequest'
     }
-    result=requests.get('https://www.lagou.com/jobs/positionAjax.json?needAddtionalResult=false',headers=headers)
-    print(result.content.decode('utf-8'))
+    form_data = {
+        'first':'true',
+        'pn':'1',
+        'kd':'python'
+    }
+    result = requests.post('https://www.lagou.com/jobs/positionAjax.json?needAddtionalResult=false',headers=headers,data=form_data)
+    jsonResult = result.json()
+    positions = jsonResult['content']['positionResult']['result']
+    line = json.dumps(positions,ensure_ascii = False)
+    # w 表示写文件
+    with open("lagou.json",'wb+') as fp:
+        fp.write(line.encode('utf-8'))
+    #for position in positions
+    #print(jsonResult)
 if __name__ == '__main__':
     main()
 
