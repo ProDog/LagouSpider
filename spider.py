@@ -20,18 +20,26 @@ def main():
     }
     form_data = {
         'first':'true',
-        'pn':'1',
+        'pn':'2',
         'kd':'python'
     }
-    result = requests.post('https://www.lagou.com/jobs/positionAjax.json?needAddtionalResult=false',headers=headers,data=form_data)
-    jsonResult = result.json()
-    positions = jsonResult['content']['positionResult']['result']
+    positions=[]
+    for x in range(1,31):
+        form_data={
+            'first':'true',
+            'pn':x,
+            'kd':'python'
+        }
+        result = requests.post('https://www.lagou.com/jobs/positionAjax.json?needAddtionalResult=false',headers=headers,data=form_data)
+        jsonResult = result.json()
+        page_positions = jsonResult['content']['positionResult']['result']
+        positions.extend(page_positions)
     line = json.dumps(positions,ensure_ascii = False)
     # w 表示写文件
-    with open("lagou.json",'wb+') as fp:
+    with open("lagou2.json",'wb+') as fp:
         fp.write(line.encode('utf-8'))
     #for position in positions
-    #print(jsonResult)
+    #print(positions)
 if __name__ == '__main__':
     main()
 
