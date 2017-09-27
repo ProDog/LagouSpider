@@ -7,8 +7,25 @@
 import urllib
 import requests
 import json
+import time
 from bs4 import BeautifulSoup
+
+def position_detail(id):
+    url = 'https://www.lagou.com/jobs/%s.html' % id
+    headers = {
+        'Host':'www.lagou.com',
+        'refer':'https://www.lagou.com/jobs/list_python?labelWords=&fromSearch=true&suginput=',
+        'Upgrade-Insecure-Requests':'1',
+        'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.79 Safari/537.36'
+    }
+    result = requests.get(url,headers=headers)
+    soup = BeautifulSoup(result.content,'lxml')
+    job_bt = soup.find('dd',attrs={'class':'job_bt'})
+    #print (job_bt.text)
+    return job_bt
+
 def main():
+    url='https://www.lagou.com/jobs/positionAjax.json?needAddtionalResult=false'
     headers = {
         'User-Agent': 'Mozilla/5.0(WindowsNT10.0;Win64;x64) AppleWebKit/537.36(KHTML, like Gecko)Chrome/61.0.3163.79 Safari/537.36',
         'Referer': 'https://www.lagou.com/jobs/list_python?labelWords=&fromSearch=true&suginput=',
@@ -20,7 +37,7 @@ def main():
     }
     form_data = {
         'first':'true',
-        'pn':'2',
+        'pn':'1',
         'kd':'python'
     }
     positions=[]
@@ -30,18 +47,43 @@ def main():
             'pn':x,
             'kd':'python'
         }
-        result = requests.post('https://www.lagou.com/jobs/positionAjax.json?needAddtionalResult=false',headers=headers,data=form_data)
+        result = requests.post(url,headers=headers,data=form_data)
         jsonResult = result.json()
         page_positions = jsonResult['content']['positionResult']['result']
-        positions.extend(page_positions)
+        for position in page_positions:
+            try:
+                position_dict={
+                    'company_name':position['companyFullName'],
+                    'position_name':position['positionName'],
+                    'salary':position['salary'],
+                    'work_year':position['workYear'],
+                    'position_advantage':position['positionAdvantage'],
+                    'district':position['district'],
+                    'position_id' : position['positionId']
+                    }
+                position_id = position['positionId']
+                print(position_id)
+                #print(type(position_detail(position_id)))
+                position_xx = position_detail(position_id).text
+                print(position_xx)
+                position_dict['position_detail'] = position_xx
+            except:
+                print('出了点叉子')
+                pass
+            positions.append(position_dict)
+
+        #positions.extend(page_positions)
+
     line = json.dumps(positions,ensure_ascii = False)
     # w 表示写文件
     with open("lagou2.json",'wb+') as fp:
         fp.write(line.encode('utf-8'))
+    time.sleep(2)
     #for position in positions
     #print(positions)
 if __name__ == '__main__':
     main()
+    #position_detail(3643154)
 
 
 
