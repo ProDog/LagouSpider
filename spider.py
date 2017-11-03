@@ -26,6 +26,7 @@ def position_detail(id):
     return job_bt
 
 
+
 def main():
     url = 'https://www.lagou.com/jobs/positionAjax.json?needAddtionalResult=false'
     headers = {
